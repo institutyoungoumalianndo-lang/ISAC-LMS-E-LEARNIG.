@@ -10,38 +10,40 @@ export function ArticlesSection() {
     if (savedStr) {
       try {
         const list: Article[] = JSON.parse(savedStr);
-        setArticles(list.filter((a) => a.is_published));
-        return;
+        if (list.length > 0) {
+          setArticles(list.filter((a) => a.is_published));
+          return;
+        }
       } catch (e) {}
     }
 
     const defaultList: Article[] = [
       {
         id: 'art-1',
-        title_fr: 'Ouverture des Inscriptions pour la Session Certifiante 2026-2027',
-        content_fr: 'ISAC MLS annonce le lancement officiel des inscriptions pour les filières professionnelles certifiantes en e-learning avec versement en 3 tranches (GNF).',
-        cover_image_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
+        title_fr: 'NOS FILIERES DE FORMATION PROFESSIONNELLE',
+        content_fr: 'Découvrez la liste complète des filières de formation certifiantes homologuées par le Ministère (METFP) : Génie Informatique, Douane Transit, Banque Assurance, Santé Publique, Génie Civil et Bâtiment.',
+        cover_image_url: '/info_agrement_metfp.png',
         media_type: 'photo',
-        published_at: new Date().toISOString(),
-        author_name: 'Direction de la Communication',
+        published_at: new Date('2026-08-18').toISOString(),
+        author_name: 'Direction ISAC MLS',
         facebook_share_url: 'https://www.facebook.com/sharer/sharer.php?u=https://isac-mls.com',
         linkedin_share_url: 'https://www.linkedin.com/sharing/share-offsite/?url=https://isac-mls.com',
         twitter_share_url: 'https://twitter.com/intent/tweet?url=https://isac-mls.com',
-        whatsapp_share_url: 'https://api.whatsapp.com/send?text=ISAC%20MLS%20Nouvelle%20Session',
+        whatsapp_share_url: 'https://api.whatsapp.com/send?text=ISAC%20MLS%20Nos%20Filieres',
         is_published: true,
       },
       {
         id: 'art-2',
-        title_fr: 'Lancement du Coffre-Fort Numérique Secrétisé pour les Cadres & la Direction',
-        content_fr: 'Un nouvel espace restreint avec visio-conférence privée et coffre-fort de documents administratifs est ouvert pour les cadres dirigeants.',
-        cover_image_url: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+        title_fr: 'Ouverture des Inscriptions pour la Nouvelle Session Certifiante 2026-2027',
+        content_fr: 'ISAC MLS annonce l\'ouverture officielle des inscriptions pour la rentrée académique. Inscrivez-vous dès maintenant et bénéficiez des facilités de paiement en 3 tranches (GNF).',
+        cover_image_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
         media_type: 'photo',
-        published_at: new Date().toISOString(),
-        author_name: 'Bureau Executif ISAC MLS',
+        published_at: new Date('2026-08-17').toISOString(),
+        author_name: 'Direction ISAC MLS',
         facebook_share_url: 'https://www.facebook.com/sharer/sharer.php?u=https://isac-mls.com',
         linkedin_share_url: 'https://www.linkedin.com/sharing/share-offsite/?url=https://isac-mls.com',
         twitter_share_url: 'https://twitter.com/intent/tweet?url=https://isac-mls.com',
-        whatsapp_share_url: 'https://api.whatsapp.com/send?text=ISAC%20MLS%20Coffre%20Fort',
+        whatsapp_share_url: 'https://api.whatsapp.com/send?text=ISAC%20MLS%20Inscriptions%20Ouvertes',
         is_published: true,
       },
     ];
