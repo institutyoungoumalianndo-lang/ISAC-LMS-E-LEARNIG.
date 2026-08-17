@@ -263,13 +263,13 @@ export function initializeRealSeedData() {
     },
   ];
 
-  // Save to localStorage if not existing or if forced
-  localStorage.setItem('isac_lms_courses', JSON.stringify(courses));
-  localStorage.setItem('isac_lms_categories', JSON.stringify(categories));
-  localStorage.setItem('isac_lms_instructors', JSON.stringify(instructors));
-  localStorage.setItem('isac_lms_cadres', JSON.stringify(cadres));
-  localStorage.setItem('isac_lms_payment_declarations', JSON.stringify(declarations));
-  localStorage.setItem('isac_lms_enrollments', JSON.stringify(enrollments));
-  localStorage.setItem('isac_lms_resources', JSON.stringify(resources));
-  localStorage.setItem('isac_lms_virtual_meetings', JSON.stringify(meetings));
+  // Save to localStorage ONLY IF NOT ALREADY POPULATED (Preserves user & admin edits until modified)
+  if (!localStorage.getItem('isac_lms_courses')) localStorage.setItem('isac_lms_courses', JSON.stringify(courses));
+  if (!localStorage.getItem('isac_lms_categories')) localStorage.setItem('isac_lms_categories', JSON.stringify(categories));
+  if (!localStorage.getItem('isac_lms_instructors')) localStorage.setItem('isac_lms_instructors', JSON.stringify(instructors));
+  if (!localStorage.getItem('isac_lms_cadres')) localStorage.setItem('isac_lms_cadres', JSON.stringify(cadres));
+  if (!localStorage.getItem('isac_lms_payment_declarations')) localStorage.setItem('isac_lms_payment_declarations', JSON.stringify(declarations));
+  if (!localStorage.getItem('isac_lms_enrollments')) localStorage.setItem('isac_lms_enrollments', JSON.stringify(enrollments));
+  if (!localStorage.getItem('isac_lms_resources')) localStorage.setItem('isac_lms_resources', JSON.stringify(resources));
+  if (!localStorage.getItem('isac_lms_virtual_meetings')) localStorage.setItem('isac_lms_virtual_meetings', JSON.stringify(meetings));
 }

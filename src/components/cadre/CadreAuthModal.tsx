@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldCheck, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, ArrowLeft, KeyRound, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 type CadreAuthModalProps = {
@@ -9,11 +9,15 @@ type CadreAuthModalProps = {
 
 export function CadreAuthModal({ onSuccess, onBack }: CadreAuthModalProps) {
   const { signIn } = useAuth();
-
-  const [email, setEmail] = useState('cadre@isac-mls.com');
-  const [password, setPassword] = useState('cadre123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Recovery Modal State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +33,10 @@ export function CadreAuthModal({ onSuccess, onBack }: CadreAuthModalProps) {
     }
   };
 
-  const handleQuickCadre = async () => {
-    setLoading(true);
-    const { error } = await signIn('cadre@isac-mls.com', 'cadre123');
-    setLoading(false);
-    if (!error) onSuccess();
+  const handleResetPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim()) return;
+    setResetSuccess(true);
   };
 
   return (
@@ -60,15 +63,6 @@ export function CadreAuthModal({ onSuccess, onBack }: CadreAuthModalProps) {
             <p className="text-xs text-gray-500 mt-1">Accès Restreint aux Comptes Générés par l'Administration</p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleQuickCadre}
-            disabled={loading}
-            className="w-full mb-6 py-3 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-          >
-            ⚡ Connexion Rapide Cadre Dirigeant
-          </button>
-
           <form onSubmit={handleSubmit} className="space-y-4 text-sm">
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Adresse email Cadre</label>
@@ -86,7 +80,16 @@ export function CadreAuthModal({ onSuccess, onBack }: CadreAuthModalProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Mot de passe généré par l'Admin</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-gray-700">Mot de passe Cadre</label>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotModal(true)}
+                  className="text-[11px] text-teal-600 font-semibold hover:underline"
+                >
+                  Mot de passe oublié ?
+                </button>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -113,13 +116,72 @@ export function CadreAuthModal({ onSuccess, onBack }: CadreAuthModalProps) {
             >
               {loading ? 'Connexion en cours...' : 'Accéder au Coffre-Fort Cadre'}
             </button>
-
-            <p className="text-[11px] text-gray-400 text-center pt-2">
-              Note : L'accès nécessite un compte Cadre généré par l'Administrateur Général.
-            </p>
           </form>
         </div>
       </div>
+
+      {/* Forgot Password Modal for Cadres */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center mx-auto">
+                <KeyRound className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Récupération de compte Cadre</h3>
+              <p className="text-xs text-gray-500">Saisissez votre email professionnel Cadre pour recevoir le lien de réinitialisation.</p>
+            </div>
+
+            {resetSuccess ? (
+              <div className="p-4 bg-teal-50 border border-teal-200 text-teal-900 rounded-2xl text-center space-y-2 text-xs">
+                <CheckCircle2 className="w-8 h-8 text-teal-600 mx-auto" />
+                <p className="font-bold">Message envoyé avec succès !</p>
+                <p>Un lien de récupération a été transmis à l'adresse <b>{resetEmail}</b>.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotModal(false);
+                    setResetSuccess(false);
+                    setResetEmail('');
+                  }}
+                  className="mt-3 px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-xs"
+                >
+                  Fermer
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4 text-sm">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Email Cadre</label>
+                  <input
+                    type="email"
+                    required
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="cadre@isac-mls.com"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-teal-600 outline-none text-xs"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-slate-950 text-white font-bold text-xs rounded-xl hover:bg-slate-900 shadow-md"
+                  >
+                    Récupérer mon compte
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

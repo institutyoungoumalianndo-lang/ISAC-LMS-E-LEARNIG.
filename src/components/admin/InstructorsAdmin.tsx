@@ -73,6 +73,7 @@ export function InstructorsAdmin({ instructors, courses = [], onChanged }: Props
     const updatedLocal = instructors.map((inst) => (inst.id === editing?.id ? { ...inst, ...data } : inst));
     if (!editing) updatedLocal.push({ id: 'inst-' + Date.now(), created_at: new Date().toISOString(), ...data });
     localStorage.setItem('isac_lms_instructors', JSON.stringify(updatedLocal));
+    window.dispatchEvent(new Event('isac_settings_updated'));
 
     setSaving(false);
     setShowForm(false);
@@ -84,6 +85,10 @@ export function InstructorsAdmin({ instructors, courses = [], onChanged }: Props
     try {
       await supabase.from('instructors').delete().eq('id', id);
     } catch (err) {}
+    
+    const updatedLocal = instructors.filter((inst) => inst.id !== id);
+    localStorage.setItem('isac_lms_instructors', JSON.stringify(updatedLocal));
+    window.dispatchEvent(new Event('isac_settings_updated'));
     onChanged();
   };
 

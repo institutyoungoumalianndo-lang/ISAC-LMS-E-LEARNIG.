@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Check, X, Award, Clock } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
-import { supabase, type Course, type Category } from '@/lib/supabase';
+import { supabase, type Course, type Category, type Instructor } from '@/lib/supabase';
 import { FileUploadZone } from '../common/FileUploadZone';
 
 type CoursesAdminProps = {
   courses?: Course[];
   categories?: Category[];
-  instructors?: any[];
+  instructors?: Instructor[];
   onChanged?: () => void;
 };
 
@@ -15,7 +15,7 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
   const { t } = useLanguage();
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [instructors, setInstructors] = useState<{ id: string; name: string }[]>([]);
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [editing, setEditing] = useState<Course | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -36,22 +36,42 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
   });
 
   const load = async () => {
+    // 1. Load Courses
     let savedCoursesStr = localStorage.getItem('isac_lms_courses');
+    let loadedCourses: Course[] = [];
     if (savedCoursesStr) {
-      try {
-        setCourses(JSON.parse(savedCoursesStr));
-      } catch (e) {}
+      try { loadedCourses = JSON.parse(savedCoursesStr); } catch (e) {}
     }
-
-    const { data: cData } = await supabase.from('courses').select('*, category:course_categories(*)');
+    const { data: cData } = await supabase.from('courses').select('*, category:categories(*), instructor:instructors(*)');
     if (cData && cData.length > 0) {
-      setCourses(cData);
+      loadedCourses = cData;
       localStorage.setItem('isac_lms_courses', JSON.stringify(cData));
     }
-    const { data: catData } = await supabase.from('course_categories').select('*');
-    if (catData) setCategories(catData);
-    const { data: iData } = await supabase.from('profiles').select('id, full_name').eq('role', 'formateur');
-    if (iData) setInstructors(iData.map((i) => ({ id: i.id, name: i.full_name || 'Formateur' })));
+    setCourses(loadedCourses);
+
+    // 2. Load Categories combo options
+    let savedCatStr = localStorage.getItem('isac_lms_categories');
+    let loadedCat: Category[] = [];
+    if (savedCatStr) {
+      try { loadedCat = JSON.parse(savedCatStr); } catch (e) {}
+    }
+    const { data: catData } = await supabase.from('categories').select('*');
+    if (catData && catData.length > 0) {
+      loadedCat = catData;
+    }
+    setCategories(loadedCat);
+
+    // 3. Load Instructors combo options
+    let savedInstStr = localStorage.getItem('isac_lms_instructors');
+    let loadedInst: Instructor[] = [];
+    if (savedInstStr) {
+      try { loadedInst = JSON.parse(savedInstStr); } catch (e) {}
+    }
+    const { data: iData } = await supabase.from('instructors').select('*');
+    if (iData && iData.length > 0) {
+      loadedInst = iData;
+    }
+    setInstructors(loadedInst);
   };
 
   useEffect(() => {
@@ -73,6 +93,8 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
       level: 'beginner',
       is_featured: false,
       is_published: true,
+      category_id: categories[0]?.id || '',
+      instructor_id: instructors[0]?.id || '',
     });
     setShowForm(true);
   };
@@ -101,12 +123,11 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
     };
 
     let updatedList = [...courses];
-
     if (editing) {
       updatedList = updatedList.map((item) => (item.id === editing.id ? { ...item, ...payload } : item));
       await supabase.from('courses').update(payload).eq('id', editing.id);
     } else {
-      const newCourseObj = { id: `course_${Date.now()}`, ...payload } as Course;
+      const newCourseObj = { id: `course_${Date.now()}`, ...payload, created_at: new Date().toISOString() } as Course;
       updatedList.unshift(newCourseObj);
       await supabase.from('courses').insert(payload);
     }
@@ -114,8 +135,11 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
     setCourses(updatedList);
     localStorage.setItem('isac_lms_courses', JSON.stringify(updatedList));
 
+    // Dispatch global event so all components reload immediately
+    window.dispatchEvent(new Event('isac_settings_updated'));
+    if (onChanged) onChanged();
+
     setShowForm(false);
-    load();
   };
 
   const remove = async (id: string) => {
@@ -124,6 +148,9 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
     setCourses(updatedList);
     localStorage.setItem('isac_lms_courses', JSON.stringify(updatedList));
     await supabase.from('courses').delete().eq('id', id);
+
+    window.dispatchEvent(new Event('isac_settings_updated'));
+    if (onChanged) onChanged();
   };
 
   const formatGnf = (val: number) => {
@@ -142,13 +169,13 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
             Définissez les niveaux de qualification (ATTESTATION, CQP, DQP, CAP), la durée en mois/années et les tarifs en GNF.
           </p>
         </div>
-        <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 transition-colors">
+        <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 transition-colors shadow-md">
           <Plus className="w-5 h-5" />
           Ajouter une Filière
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-600">
             <thead className="bg-gray-50 border-b border-gray-100 font-bold text-gray-700 text-xs uppercase">
@@ -199,7 +226,6 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && <div className="text-center py-12 text-gray-400 text-sm">Aucune filière trouvée</div>}
         </div>
       </div>
 
@@ -215,11 +241,11 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
 
             <div className="space-y-4 text-sm max-h-[75vh] overflow-y-auto pr-1">
               <Field label="Intitulé de la Filière / Formation (Français)">
-                <input type="text" required value={form.title_fr || ''} onChange={(e) => setForm({ ...form, title_fr: e.target.value })} className={inputCls} placeholder="Ex: Spécialisation en Gestion de Projet..." />
+                <input type="text" required value={form.title_fr || ''} onChange={(e) => setForm({ ...form, title_fr: e.target.value })} className={inputCls} placeholder="Ex: Génie Informatique & Réseaux..." />
               </Field>
 
               <Field label="Intitulé de la Formation (Anglais)">
-                <input type="text" required value={form.title_en || ''} onChange={(e) => setForm({ ...form, title_en: e.target.value })} className={inputCls} placeholder="Ex: Professional Project Management..." />
+                <input type="text" required value={form.title_en || ''} onChange={(e) => setForm({ ...form, title_en: e.target.value })} className={inputCls} placeholder="Ex: Software Engineering & IT Systems..." />
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
@@ -278,17 +304,25 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
               </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Catégorie de Spécialité">
-                  <select value={form.category_id || ''} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className={inputCls}>
-                    <option value="">— Sélectionner —</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name_fr}</option>)}
+                <Field label="Catégorie de Spécialité (Liée aux Combos)">
+                  <select value={form.category_id || ''} onChange={(e) => setForm({ ...form, category_id: e.target.value })} className={`${inputCls} font-medium`}>
+                    <option value="">— Sélectionner la Catégorie —</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name_fr}
+                      </option>
+                    ))}
                   </select>
                 </Field>
 
-                <Field label="Formateur Référent">
-                  <select value={form.instructor_id || ''} onChange={(e) => setForm({ ...form, instructor_id: e.target.value })} className={inputCls}>
-                    <option value="">— Aucun attribué —</option>
-                    {instructors.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+                <Field label="Formateur Référent (Lié aux Combos)">
+                  <select value={form.instructor_id || ''} onChange={(e) => setForm({ ...form, instructor_id: e.target.value })} className={`${inputCls} font-medium`}>
+                    <option value="">— Sélectionner le Formateur —</option>
+                    {instructors.map((i) => (
+                      <option key={i.id} value={i.id}>
+                        {i.name} ({i.title_fr || 'Formateur'})
+                      </option>
+                    ))}
                   </select>
                 </Field>
               </div>
@@ -314,11 +348,11 @@ export function CoursesAdmin({ onChanged }: CoursesAdminProps = {}) {
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100">
+              <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100 font-medium">
                 Annuler
               </button>
-              <button onClick={save} className="px-5 py-2 rounded-xl bg-teal-600 text-white font-bold hover:bg-teal-700">
-                {editing ? "Enregistrer" : "Ajouter la Filière"}
+              <button onClick={save} className="px-6 py-2 rounded-xl bg-teal-600 text-white font-bold hover:bg-teal-700 shadow-md">
+                {editing ? "Enregistrer les Modifications" : "Ajouter la Filière"}
               </button>
             </div>
           </div>

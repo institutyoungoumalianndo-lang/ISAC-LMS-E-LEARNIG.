@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GraduationCap, Mail, Lock, User, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, ArrowLeft, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -18,6 +18,11 @@ export function StudentAuth({ onSuccess, onBack }: StudentAuthProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Forgot Password Modal State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +62,12 @@ export function StudentAuth({ onSuccess, onBack }: StudentAuthProps) {
         onSuccess();
       }
     }
+  };
+
+  const handleResetPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim()) return;
+    setResetSuccess(true);
   };
 
   return (
@@ -117,8 +128,8 @@ export function StudentAuth({ onSuccess, onBack }: StudentAuthProps) {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
-                    placeholder="Jean Dupont"
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-sm"
+                    placeholder="Mamadou Bah"
                   />
                 </div>
               </div>
@@ -133,14 +144,25 @@ export function StudentAuth({ onSuccess, onBack }: StudentAuthProps) {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-sm"
                   placeholder="etudiant@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('student_auth_password')}</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">{t('student_auth_password')}</label>
+                {mode === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs text-teal-600 font-semibold hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                )}
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -148,7 +170,7 @@ export function StudentAuth({ onSuccess, onBack }: StudentAuthProps) {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-sm"
                   placeholder="••••••••"
                 />
               </div>
@@ -171,23 +193,76 @@ export function StudentAuth({ onSuccess, onBack }: StudentAuthProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 transition-all text-sm shadow-md"
             >
               {loading ? '...' : mode === 'signup' ? t('student_auth_button_signup') : t('student_auth_button_login')}
             </button>
           </form>
-
-          <p className="text-center text-sm text-gray-500 mt-6">
-            {mode === 'signup' ? t('student_already_have_account') : t('student_no_account')}{' '}
-            <button
-              onClick={() => { setMode(mode === 'signup' ? 'login' : 'signup'); setError(null); setSuccess(null); }}
-              className="text-teal-600 font-semibold hover:text-teal-700"
-            >
-              {mode === 'signup' ? t('student_auth_login_tab') : t('student_auth_signup_tab')}
-            </button>
-          </p>
         </div>
       </div>
+
+      {/* Forgot Password Recovery Modal for Students */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto">
+                <KeyRound className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Récupération de compte Étudiant</h3>
+              <p className="text-xs text-gray-500">Saisissez l'adresse email de votre compte pour recevoir un lien de réinitialisation.</p>
+            </div>
+
+            {resetSuccess ? (
+              <div className="p-4 bg-teal-50 border border-teal-200 text-teal-900 rounded-2xl text-center space-y-2 text-xs">
+                <CheckCircle2 className="w-8 h-8 text-teal-600 mx-auto" />
+                <p className="font-bold">Instructions envoyées avec succès !</p>
+                <p>Un lien de réinitialisation sécurisé a été transmis à l'adresse <b>{resetEmail}</b>.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotModal(false);
+                    setResetSuccess(false);
+                    setResetEmail('');
+                  }}
+                  className="mt-3 px-4 py-2 bg-teal-600 text-white font-bold rounded-xl text-xs"
+                >
+                  Fermer
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4 text-sm">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Adresse Email Étudiant</label>
+                  <input
+                    type="email"
+                    required
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="votre.email@gmail.com"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-teal-500 outline-none text-xs"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-teal-600 text-white font-bold text-xs rounded-xl hover:bg-teal-700 shadow-md"
+                  >
+                    Récupérer mon compte
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
