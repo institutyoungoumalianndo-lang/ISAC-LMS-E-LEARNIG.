@@ -136,7 +136,7 @@ function AppContent() {
     } else if (target === 'contact') {
       setPage('contact');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (target === 'login') {
+    } else if (target === 'login' || target === 'admin') {
       setPage('login');
     } else if (target === 'formateur') {
       setPage('formateur');
@@ -179,14 +179,12 @@ function AppContent() {
     return <CadreAuthModal onSuccess={() => setPage('cadre')} onBack={() => setPage('home')} />;
   }
 
-  // 3. Admin View
+  // 3. Explicit Admin Page Route (Fix: Never falls through to Contact Page)
   if (page === 'login' || page === 'admin') {
-    if (session && isAdmin) {
+    if (session && (isAdmin || session?.user?.user_metadata?.role === 'admin')) {
       return <AdminDashboard onExit={() => setPage('home')} />;
     }
-    if (page === 'login') {
-      return <AdminLogin onSuccess={() => setPage('admin')} onBack={() => setPage('home')} />;
-    }
+    return <AdminLogin onSuccess={() => setPage('admin')} onBack={() => setPage('home')} />;
   }
 
   // 4. Student Auth & Dashboard Views
