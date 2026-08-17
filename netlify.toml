@@ -1,0 +1,13 @@
+# Netlify Configuration File for ISAC LMS E-Learning Platform
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Single Page Application (SPA) Client-Side Redirect Rule
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  NODE_VERSION = "20.x"

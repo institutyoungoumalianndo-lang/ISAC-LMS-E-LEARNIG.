@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Manuel Officiel d'Utilisation & Guide de Déploiement - ISAC MLS</title>
+  <style>
+    @media print {
+      body { margin: 0; padding: 20px; font-size: 12pt; background: #fff; color: #000; }
+      .no-print { display: none; }
+      .page-break { page-break-before: always; }
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background: #f8fafc;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 50px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+    .header-banner {
+      text-align: center;
+      border-bottom: 3px double #0d9488;
+      padding-bottom: 25px;
+      margin-bottom: 35px;
+    }
+    .header-banner h1 {
+      font-size: 22px;
+      color: #0f766e;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .header-banner h2 {
+      font-size: 15px;
+      color: #334155;
+      margin: 5px 0;
+      font-weight: 600;
+    }
+    .header-banner p {
+      font-size: 12px;
+      color: #64748b;
+      margin: 3px 0;
+    }
+    h2.section-title {
+      color: #0f766e;
+      border-left: 5px solid #0d9488;
+      padding-left: 12px;
+      margin-top: 35px;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+    h3 { color: #1e293b; font-size: 15px; margin-top: 20px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #ccfbf1;
+      color: #0f766e;
+      font-weight: bold;
+      font-size: 11px;
+      border-radius: 12px;
+      margin-right: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #0f766e;
+      font-weight: bold;
+    }
+    .code-block {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    .print-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #0d9488;
+      color: #ffffff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(13,148,136,0.4);
+      transition: all 0.3s;
+    }
+    .print-btn:hover { background: #0f766e; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Télécharger en PDF / Imprimer</button>
+
+  <div class="container">
+    <div class="header-banner">
+      <p style="font-weight: bold; color: #b45309; text-transform: uppercase;">RÉPUBLIQUE DE GUINÉE • Travail - Justice - Solidarité</p>
+      <p style="font-weight: bold; color: #1e293b;">MINISTÈRE DE L'ENSEIGNEMENT TECHNIQUE ET DE LA FORMATION PROFESSIONNELLE</p>
+      <h1>MANUEL OFFICIEL D'UTILISATION ET DE DÉPLOIEMENT NETLIFY</h1>
+      <h2>INSTITUT SUPÉRIEUR AGRÉÉ & CENTRE DE FORMATION PROFESSIONNELLE « ISAC MLS »</h2>
+      <p><i>Institut Youngou Malianndo « I.YMA » — École de Commerce et de Gestion</i></p>
+      <p>Agrément N° 070 / METFP-ET / DNETPP / 14 • Ouverture N° 2014 / 3942 / CAB / DNETPP</p>
+    </div>
+
+    <h2 class="section-title">🚀 PARTIE 1 : PROCÉDURE DE DÉPLOIEMENT CLÉ-EN-MAIN SUR NETLIFY</h2>
+    <p>Le projet est 100% pré-configuré pour un déploiement instantané sur Netlify grâce aux fichiers <code>netlify.toml</code> et <code>public/_redirects</code>.</p>
+
+    <h3>📦 Méthode 1 : Déploiement Manuel Instantané (Netlify Drop) — En 2 minutes</h3>
+    <ol>
+      <li>Exécutez la commande suivante à la racine du projet pour générer le build :
+        <div class="code-block">npm run build</div>
+      </li>
+      <li>Connectez-vous sur <a href="https://app.netlify.com/" target="_blank">https://app.netlify.com/</a>.</li>
+      <li>Glissez-déposez le dossier <b>dist/</b> dans la zone <b>"Drag and drop your site output folder here"</b>.</li>
+      <li>Le site est immédiatement en ligne avec HTTPS SSL gratuit !</li>
+    </ol>
+
+    <h3>🔄 Méthode 2 : Déploiement Automatique via GitHub / GitLab</h3>
+    <ol>
+      <li>Poussez votre code sur GitHub :
+        <div class="code-block">git add .<br>git commit -m "Déploiement ISAC LMS E-Learning"<br>git push origin main</div>
+      </li>
+      <li>Sur Netlify, cliquez sur <b>"Add new site"</b> &gt; <b>"Import an existing project"</b>.</li>
+      <li>Sélectionnez votre dépôt GitHub. Netlify détecte automatiquement :
+        <ul>
+          <li><b>Build Command</b> : <code>npm run build</code></li>
+          <li><b>Publish Directory</b> : <code>dist</code></li>
+        </ul>
+      </li>
+      <li>Cliquez sur <b>"Deploy Site"</b>. Chaque future modification sur GitHub mettra à jour le site automatiquement !</li>
+    </ol>
+
+    <div class="page-break"></div>
+
+    <h2 class="section-title">🎓 PARTIE 2 : GUIDE D'UTILISATION DES ESPACES DE LA PLATEFORME</h2>
+
+    <h3>1. 🎓 ESPACE ÉTUDIANT</h3>
+    <ul>
+      <li><span class="badge">Inscriptions</span> L'étudiant sélectionne sa filière d'études (ex: <i>Génie Informatique</i>, <i>Comptabilité & Gestion</i>, <i>Transit & Douane</i>), clique sur <b>"S'inscrire"</b> et remplit le formulaire de déclaration de versement.</li>
+      <li><span class="badge">Paiement Mobile Money</span> Saisie obligatoire du <b>Numéro de Téléphone Mobile Money (+224)</b> et référence de transaction.</li>
+      <li><span class="badge">Droits Pédagogiques</span> Après validation par l'Admin, l'étudiant débloque l'accès aux cours vidéo HD, quiz QCM, supports PDF/Word, au macaron de son <b>Formateur Référent Affecté</b> et à ses <b>Diplômes Officiels (CQP, DQP, CAP, ATTESTATION)</b>.</li>
+    </ul>
+
+    <h3>2. 👨‍🏫 ESPACE FORMATEUR (Accrédité & Sécurisé)</h3>
+    <ul>
+      <li><span class="badge">Connexion</span> Cliquez sur <b>"Espace Formateur"</b> &gt; Cliquez sur <b>"⚡ Connexion Rapide Formateur Référent"</b> (ou <code>dr.barry@isac-mls.com</code> / mdp: <code>formateur123</code>).</li>
+      <li><span class="badge">Publication Tout Format</span> Cliquez sur le bouton <b>"+ Publier un Fichier / Support (Tout Format)"</b> pour transmettre des fichiers PDF, Word, Excel, PowerPoint, MP4, MP3 audio ou archives ZIP aux étudiants de votre filière.</li>
+      <li><span class="badge">Temps Réel</span> Les fichiers publiés apparaissent <b>immédiatement dans le lecteur de cours de vos étudiants</b>.</li>
+      <li><span class="badge">Forum & Live</span> Échangez en direct sur le forum de discussion et organisez des visio-conférences interactives.</li>
+    </ul>
+
+    <h3>3. 🏛️ ESPACE ADMINISTRATION</h3>
+    <ul>
+      <li><span class="badge">Validation Admin</span> Visualisation du tableau des déclarations avec téléphone (+224), photo du reçu et validation 1-clic.</li>
+      <li><span class="badge">Diplômes Officiels</span> Génération et transfert direct des diplômes visés par le Ministère (MENA-ETFP/METFP) dans l'Espace Étudiant.</li>
+      <li><span class="badge">Formateurs</span> Affectation des formateurs certifiés aux filières d'études.</li>
+    </ul>
+
+    <h3>4. 💼 ESPACE CADRES & EXECUTIVE SUITE</h3>
+    <ul>
+      <li><span class="badge">Coffre-Fort</span> Consultation confidentielle des bilans financiers GNF et procès-verbaux de la Direction.</li>
+    </ul>
+
+    <h2 class="section-title">🔑 RÉPERTOIRE DES IDENTIFIANTS DE TEST</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Espace</th>
+          <th>Email de Connexion</th>
+          <th>Mot de Passe</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Espace Étudiant (Accès Validé)</b></td>
+          <td><code>etudiant@isac-mls.com</code></td>
+          <td><code>etudiant123</code></td>
+        </tr>
+        <tr>
+          <td><b>Espace Formateur Référent</b></td>
+          <td><code>dr.barry@isac-mls.com</code></td>
+          <td><code>formateur123</code></td>
+        </tr>
+        <tr>
+          <td><b>Espace Administration</b></td>
+          <td><code>admin@isac-mls.com</code></td>
+          <td><code>admin123</code></td>
+        </tr>
+        <tr>
+          <td><b>Espace Direction & Cadres</b></td>
+          <td><code>cadre@isac-mls.com</code></td>
+          <td><code>cadre123</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="text-align: center; margin-top: 40px; font-size: 11px; color: #64748b;">
+      Document officiel certifié conforme par la Direction Pédagogique et l'Équipe Technique ISAC MLS.
+    </p>
+  </div>
+
+</body>
+</html>
