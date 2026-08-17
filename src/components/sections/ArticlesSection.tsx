@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Newspaper, Share2, Facebook, Linkedin, Twitter, MessageSquare, ArrowRight, Play } from 'lucide-react';
 import type { Article } from '@/lib/supabase';
 
 export function ArticlesSection() {
   const [articles, setArticles] = useState<Article[]>([]);
 
-  useEffect(() => {
+  const loadArticles = useCallback(() => {
     const savedStr = localStorage.getItem('isac_lms_articles');
     if (savedStr) {
       try {
@@ -50,6 +50,12 @@ export function ArticlesSection() {
 
     setArticles(defaultList);
   }, []);
+
+  useEffect(() => {
+    loadArticles();
+    window.addEventListener('isac_settings_updated', loadArticles);
+    return () => window.removeEventListener('isac_settings_updated', loadArticles);
+  }, [loadArticles]);
 
   if (articles.length === 0) return null;
 

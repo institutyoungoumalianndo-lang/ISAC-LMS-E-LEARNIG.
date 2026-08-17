@@ -103,6 +103,7 @@ export function ArticlesAdmin() {
 
     setArticles(updated);
     localStorage.setItem('isac_lms_articles', JSON.stringify(updated));
+    window.dispatchEvent(new Event('isac_settings_updated'));
     setShowModal(false);
   };
 
@@ -111,6 +112,7 @@ export function ArticlesAdmin() {
     const updated = articles.filter((a) => a.id !== id);
     setArticles(updated);
     localStorage.setItem('isac_lms_articles', JSON.stringify(updated));
+    window.dispatchEvent(new Event('isac_settings_updated'));
   };
 
   return (

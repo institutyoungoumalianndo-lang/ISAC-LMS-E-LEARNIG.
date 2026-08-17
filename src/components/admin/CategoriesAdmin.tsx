@@ -31,25 +31,40 @@ export function CategoriesAdmin({ categories, onChanged }: Props) {
       description_fr: form.description_fr || null, description_en: form.description_en || null,
       icon: form.icon, display_order: Number(form.display_order),
     };
-    if (editing) await supabase.from('categories').update(data).eq('id', editing.id);
-    else await supabase.from('categories').insert(data);
+
+    try {
+      if (editing) await supabase.from('categories').update(data).eq('id', editing.id);
+      else await supabase.from('categories').insert(data);
+    } catch (e) {}
+
+    const updatedLocal = categories.map((cat) => (cat.id === editing?.id ? { ...cat, ...data } : cat));
+    if (!editing) updatedLocal.push({ id: 'cat-' + Date.now(), created_at: new Date().toISOString(), ...data });
+    localStorage.setItem('isac_lms_categories', JSON.stringify(updatedLocal));
+
+    window.dispatchEvent(new Event('isac_settings_updated'));
     setSaving(false); setShowForm(false); onChanged();
   };
 
   const remove = async (id: string) => {
     if (!confirm(t('admin_confirm_delete'))) return;
-    await supabase.from('categories').delete().eq('id', id);
+    try {
+      await supabase.from('categories').delete().eq('id', id);
+    } catch (e) {}
+    
+    const updatedLocal = categories.filter((cat) => cat.id !== id);
+    localStorage.setItem('isac_lms_categories', JSON.stringify(updatedLocal));
+    window.dispatchEvent(new Event('isac_settings_updated'));
     onChanged();
   };
 
   return (
     <div>
       <div className="flex justify-end mb-6">
-        <button onClick={openAdd} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 transition-colors">
+        <button onClick={openAdd} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 transition-colors shadow-md">
           <Plus className="w-5 h-5" />{t('admin_add')}
         </button>
       </div>
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -84,7 +99,7 @@ export function CategoriesAdmin({ categories, onChanged }: Props) {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-2xl max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900">{editing ? t('admin_edit') : t('admin_add')}</h2>
               <button onClick={() => setShowForm(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"><X className="w-5 h-5" /></button>
@@ -101,7 +116,7 @@ export function CategoriesAdmin({ categories, onChanged }: Props) {
                 <div><label className="block text-sm font-medium text-gray-700 mb-1.5">{t('admin_category_order')}</label><input type="number" value={form.display_order} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none text-sm" /></div>
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={save} disabled={saving || !form.name_fr || !form.name_en} className="flex-1 py-2.5 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 disabled:opacity-60">{t('admin_save')}</button>
+                <button onClick={save} disabled={saving || !form.name_fr || !form.name_en} className="flex-1 py-2.5 rounded-xl bg-teal-600 text-white font-semibold hover:bg-teal-700 disabled:opacity-60 shadow-md">{t('admin_save')}</button>
                 <button onClick={() => setShowForm(false)} className="px-6 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50">{t('admin_cancel')}</button>
               </div>
             </div>
