@@ -5,7 +5,7 @@
 
 -- 1. Table des Catégories de Spécialités
 CREATE TABLE IF NOT EXISTS categories (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   name_fr text NOT NULL,
   name_en text NOT NULL,
   description_fr text,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- 2. Table des Formateurs Accrédités ISAC MLS
 CREATE TABLE IF NOT EXISTS instructors (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   name text NOT NULL,
   email text UNIQUE,
   password text DEFAULT 'formateur123',
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS instructors (
 
 -- 3. Table des Filières de Formation Professionnelle & Diplômes
 CREATE TABLE IF NOT EXISTS courses (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   title_fr text NOT NULL,
   title_en text NOT NULL,
   description_fr text,
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS courses (
   price_gnf numeric DEFAULT 1500000,
   duration_fr text DEFAULT '6 Mois',
   duration_en text DEFAULT '6 Months',
-  category_id uuid REFERENCES categories(id) ON DELETE SET NULL,
-  instructor_id uuid REFERENCES instructors(id) ON DELETE SET NULL,
+  category_id text,
+  instructor_id text,
   level text DEFAULT 'beginner',
   duration_hours numeric DEFAULT 6,
   price numeric DEFAULT 150,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS courses (
 
 -- 4. Table des Cadres Dirigeants & Coffre-Fort Secrétisé
 CREATE TABLE IF NOT EXISTS cadres (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   name text NOT NULL,
   email text UNIQUE NOT NULL,
   password text DEFAULT 'cadre123',
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS cadres (
 
 -- 5. Table des Déclarations de Paiement Mobile Money (+224)
 CREATE TABLE IF NOT EXISTS payment_declarations (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   student_name text NOT NULL,
   student_email text NOT NULL,
   student_phone text NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS payment_declarations (
 
 -- 6. Table des Inscriptions & Diplômes Étudiants
 CREATE TABLE IF NOT EXISTS enrollments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   user_id text NOT NULL,
   student_email text NOT NULL,
   course_id text NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS enrollments (
 
 -- 7. Table des Supports de Cours Multi-Formats (Formateur)
 CREATE TABLE IF NOT EXISTS resources (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   course_id text NOT NULL,
   instructor_id text NOT NULL,
   title text NOT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS resources (
 
 -- 8. Table des Réunions & Classes Virtuelles Live
 CREATE TABLE IF NOT EXISTS virtual_meetings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   title text NOT NULL,
   description text,
   course_id text NOT NULL,
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS virtual_meetings (
 
 -- 9. Table des Réglages Généraux & Agréments Ministériels
 CREATE TABLE IF NOT EXISTS site_settings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id text PRIMARY KEY,
   site_name text DEFAULT 'ISAC MLS',
   admin_email text DEFAULT 'admin@isac-mls.com',
   admin_password text DEFAULT 'admin123',
@@ -158,8 +158,13 @@ ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE virtual_meetings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
--- Politiques de lecture publique pour l'accès aux cours
-CREATE POLICY "Lecture publique des catégories" ON categories FOR SELECT USING (true);
-CREATE POLICY "Lecture publique des formateurs" ON instructors FOR SELECT USING (true);
-CREATE POLICY "Lecture publique des cours" ON courses FOR SELECT USING (true);
-CREATE POLICY "Lecture publique des réglages" ON site_settings FOR SELECT USING (true);
+-- Autoriser la lecture et écriture totale pour l'administration et les utilisateurs
+CREATE POLICY "Accès complet catégories" ON categories FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet formateurs" ON instructors FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet cours" ON courses FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet cadres" ON cadres FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet déclarations" ON payment_declarations FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet inscriptions" ON enrollments FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet ressources" ON resources FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet réunions" ON virtual_meetings FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Accès complet réglages" ON site_settings FOR ALL USING (true) WITH CHECK (true);
