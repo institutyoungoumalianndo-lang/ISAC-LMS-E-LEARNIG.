@@ -19,3 +19,5 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  VITE_SUPABASE_URL = "https://ovzacolqxdjazrudwdts.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "sb_publishable_C7k2PdeRDOWoaUbLdNAhoA_Qj6zSL-Z"
